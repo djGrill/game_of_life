@@ -113,6 +113,14 @@ describe GameOfLife::Board do
     @board.to_s.should == @starting_board
   end
 
+  it '#convert_string_to_matrix should convert the string to a matrix' do
+    @board.convert_string_to_matrix(@starting_board).should == ["   xxx   ".split(""), "         ".split("")]
+  end
+
+  it '#convert_matrix_to_string should convert the matrix to string' do
+    @board.convert_matrix_to_string.should == @starting_board
+  end
+
   it 'should print board' do
     @board.to_s.should == @starting_board
   end
@@ -127,6 +135,10 @@ describe GameOfLife::Board do
 
     it 'should respond to Cell.valid_neighboor?' do
       GameOfLife::Board::Cell.should respond_to(:valid_neighboor?)
+    end
+
+    it 'should respond to process' do
+      @first_cell.should respond_to(:process)
     end
 
     it 'should respond to count_alive_neighboors' do
@@ -171,6 +183,20 @@ describe GameOfLife::Board do
       GameOfLife::Board::Cell.valid_neighboor?(0, -1, 3, 3).should == false
       GameOfLife::Board::Cell.valid_neighboor?(4, 0, 3, 3).should == false
       GameOfLife::Board::Cell.valid_neighboor?(0, 4, 3, 3).should == false
+    end
+
+    it '#process should revive a must live cell' do
+      must_live_cell = GameOfLife::Board::Cell.new(1, 4, @matrix[1][4], @matrix, @matrix.length, @matrix[0].length)
+      must_live_cell.status.should == " "
+      must_live_cell.process
+      must_live_cell.status.should == "x"
+    end
+
+    it '#process should kill a must die cell' do
+      must_die_cell = GameOfLife::Board::Cell.new(0, 3, @matrix[0][3], @matrix, @matrix.length, @matrix[0].length)
+      must_die_cell.status.should == "x"
+      must_die_cell.process
+      must_die_cell.status.should == " "
     end
 
     it '#count_alive_neighboors should count 0 neighboors' do

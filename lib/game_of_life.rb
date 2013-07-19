@@ -46,6 +46,19 @@ module GameOfLife
       end
 
       def next_generation
+          new_matrix = []
+
+          @matrix.each_with_index do |line, row|
+              new_matrix[row] = []
+              line.each_with_index do |cell, col|
+                  cell_handler = Cell.new(row, col, @matrix[row][col], @matrix, @matrix.length, line.length)
+                  cell_handler.process
+
+                  new_matrix[row][col] = cell_handler.status
+              end
+          end
+
+          @matrix = new_matrix
       end
 
 
@@ -67,6 +80,15 @@ module GameOfLife
                   return false if neighboor_row < 0 or neighboor_row > matrix_row_length
                   return false if neighboor_col < 0 or neighboor_col > matrix_col_length
                   return true
+              end
+          end
+
+          def process
+              if self.must_live?
+                  self.revive
+              end
+              if self.must_die?
+                  self.kill
               end
           end
 
