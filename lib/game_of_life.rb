@@ -86,8 +86,7 @@ module GameOfLife
             def process
                 if self.must_live?
                     self.revive
-                end
-                if self.must_die?
+                elsif self.must_die?
                     self.kill
                 end
             end
