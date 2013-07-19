@@ -8,15 +8,68 @@ module GameOfLife
 
       def initialize(starting_board = nil)
           if not starting_board.nil?
-              @board = starting_board
+              @board = Board.new(starting_board)
           end
       end
 
       def board
-          @board
+          @board.to_s
       end
 
       def run(generations = 1)
+          generations.times do
+              @board.next_generation
+          end
+      end
+  end
+
+
+  class Board
+      attr_accessor :matrix
+
+      def initialize(starting_board = nil)
+          if not starting_board.nil?
+              @matrix = starting_board
+          end
+      end
+
+      def to_s
+          @matrix
+      end
+
+      def next_generation
+      end
+
+      class Cell
+          def initialize
+          end
+
+          def count_alive_neighboors
+          end
+
+          def is_alive?
+          end
+
+          def is_underpopulated?
+          end
+
+          def is_overpopulated?
+          end
+
+          def is_reproductive?
+          end
+
+          def must_live?
+          end
+
+          def must_die?
+          end
+
+          def revive
+          end
+
+          def kill
+          end
       end
   end
 end
