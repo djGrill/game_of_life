@@ -29,12 +29,20 @@ module GameOfLife
 
       def initialize(starting_board = nil)
           if not starting_board.nil?
-              @matrix = starting_board
+              @matrix = convert_string_to_matrix(starting_board)
           end
       end
 
       def to_s
-          @matrix
+          convert_matrix_to_string
+      end
+
+      def convert_string_to_matrix(array)
+          return array.split("\n").map { |line| line.split("") }
+      end
+
+      def convert_matrix_to_string
+          return @matrix.map { |line| line.join }.join("\n") + "\n"
       end
 
       def next_generation
@@ -42,17 +50,40 @@ module GameOfLife
 
 
       class Cell
-          attr_accessor :row, :col, :status, :alive_neighboors, :matrix
+          attr_accessor :row, :col, :status, :alive_neighboors, :matrix, :matrix_row_length, :matrix_col_length
 
-          def initialize(row, col, status, matrix)
+          def initialize(row, col, status, matrix, matrix_row_length, matrix_col_length)
               @row = row
               @col = col
               @status = status
               @matrix = matrix
+              @matrix_row_length = matrix_row_length
+              @matrix_col_length = matrix_col_length
               @alive_neighboors = self.count_alive_neighboors
           end
 
+          class << self
+              def valid_neighboor?(neighboor_row, neighboor_col, matrix_row_length, matrix_col_length)
+                  return false if neighboor_row < 0 or neighboor_row > matrix_row_length
+                  return false if neighboor_col < 0 or neighboor_col > matrix_col_length
+                  return true
+              end
+          end
+
           def count_alive_neighboors
+              alive_neighboors = 0
+
+              [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]].each do |coords|
+                  neighboor_row = @row + coords[0]
+                  neighboor_col = @col + coords[1]
+                  if self.class.valid_neighboor?(neighboor_row, neighboor_col, @matrix_row_length, @matrix_col_length)
+                      if !@matrix[neighboor_row].nil?
+                          alive_neighboors += 1 if @matrix[neighboor_row][neighboor_col] == "x"
+                      end
+                  end
+              end
+
+              return alive_neighboors
           end
 
           def is_alive?

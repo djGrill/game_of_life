@@ -97,6 +97,14 @@ describe GameOfLife::Board do
     @board.should respond_to(:to_s)
   end
 
+  it 'should respond to convert_string_to_matrix' do
+    @board.should respond_to(:convert_string_to_matrix)
+  end
+
+  it 'should respond to convert_matrix_to_string' do
+    @board.should respond_to(:convert_matrix_to_string)
+  end
+
   it 'should respond to next_generation' do
     @board.should respond_to(:next_generation)
   end
@@ -114,7 +122,11 @@ describe GameOfLife::Board do
     before(:each) do
       @board = GameOfLife::Board.new(@starting_board)
       @matrix = @board.matrix
-      @first_cell = GameOfLife::Board::Cell.new(0, 0, @matrix[0][0], @matrix)
+      @first_cell = GameOfLife::Board::Cell.new(0, 0, @matrix[0][0], @matrix, @matrix.length, @matrix[0].length)
+    end
+
+    it 'should respond to Cell.valid_neighboor?' do
+      GameOfLife::Board::Cell.should respond_to(:valid_neighboor?)
     end
 
     it 'should respond to count_alive_neighboors' do
@@ -153,43 +165,87 @@ describe GameOfLife::Board do
       @first_cell.should respond_to(:revive)
     end
 
+    it '#valid_neighboor? should detect invalid neighboors' do
+      GameOfLife::Board::Cell.valid_neighboor?(0, 0, 3, 3).should == true
+      GameOfLife::Board::Cell.valid_neighboor?(-1, 0, 3, 3).should == false
+      GameOfLife::Board::Cell.valid_neighboor?(0, -1, 3, 3).should == false
+      GameOfLife::Board::Cell.valid_neighboor?(4, 0, 3, 3).should == false
+      GameOfLife::Board::Cell.valid_neighboor?(0, 4, 3, 3).should == false
+    end
+
     it '#count_alive_neighboors should count 0 neighboors' do
+      @first_cell.count_alive_neighboors.should == 0
     end
 
     it '#count_alive_neighboors should count 1 neighboor' do
+      cell_with_1_neighboor = GameOfLife::Board::Cell.new(0, 3, @matrix[0][3], @matrix, @matrix.length, @matrix[0].length)
+      cell_with_1_neighboor.count_alive_neighboors.should == 1
     end
 
     it '#count_alive_neighboors should count 2 neighboors' do
+      cell_with_2_neighboors = GameOfLife::Board::Cell.new(0, 4, @matrix[0][4], @matrix, @matrix.length, @matrix[0].length)
+      cell_with_2_neighboors.count_alive_neighboors.should == 2
     end
 
     it '#count_alive_neighboors should count 3 neighboors' do
+      cell_with_3_neighboors = GameOfLife::Board::Cell.new(1, 4, @matrix[1][4], @matrix, @matrix.length, @matrix[0].length)
+      cell_with_3_neighboors.count_alive_neighboors.should == 3
     end
 
     it '#count_alive_neighboors should count 4 neighboors' do
+      board = GameOfLife::Board.new(" x \nxxx\n x \n")
+      matrix = board.matrix
+      cell_with_4_neighboors = GameOfLife::Board::Cell.new(1, 1, matrix[1][1], matrix, matrix.length, matrix[0].length)
+      cell_with_4_neighboors.count_alive_neighboors.should == 4
     end
 
     it '#is_alive? should detect living and dead cells' do
+      living_cell = GameOfLife::Board::Cell.new(0, 3, @matrix[0][3], @matrix, @matrix.length, @matrix[0].length)
+      living_cell.is_alive?.should == true
+
+      dead_cell = GameOfLife::Board::Cell.new(0, 0, @matrix[0][0], @matrix, @matrix.length, @matrix[0].length)
+      dead_cell.is_alive?.should == false
     end
 
     it '#is_underpopulated? should detect underpopulated cells' do
+      underpopulated_cell = GameOfLife::Board::Cell.new(0, 3, @matrix[0][3], @matrix, @matrix.length, @matrix[0].length)
+      underpopulated_cell.is_underpopulated?.should == true
     end
 
     it '#is_overpopulated? should detect overpopulated cells' do
+      board = GameOfLife::Board.new(" x \nxxx\n x \n")
+      matrix = board.matrix
+      overpopulated_cell = GameOfLife::Board::Cell.new(1, 1, matrix[1][1], matrix, matrix.length, matrix[0].length)
+      overpopulated_cell.is_overpopulated?.should == true
     end
 
     it '#is_reproductive? should detect reproductive cells' do
+      reproductive_cell = GameOfLife::Board::Cell.new(1, 4, @matrix[1][4], @matrix, @matrix.length, @matrix[0].length)
+      reproductive_cell.is_reproductive?.should == true
     end
 
     it '#must_die? should detect cells that must die' do
+      must_die_cell = GameOfLife::Board::Cell.new(0, 3, @matrix[0][3], @matrix, @matrix.length, @matrix[0].length)
+      must_die_cell.must_die?.should == true
     end
 
     it '#must_live? should detect cells that must live' do
+      must_live_cell = GameOfLife::Board::Cell.new(1, 4, @matrix[1][4], @matrix, @matrix.length, @matrix[0].length)
+      must_live_cell.must_live?.should == true
     end
 
     it '#revive should revive cells' do
+      dead_cell = GameOfLife::Board::Cell.new(0, 0, @matrix[0][0], @matrix, @matrix.length, @matrix[0].length)
+      dead_cell.status.should == " "
+      dead_cell.revive
+      dead_cell.status.should == "x"
     end
 
     it '#kill should kill cells' do
+      living_cell = GameOfLife::Board::Cell.new(0, 4, @matrix[0][4], @matrix, @matrix.length, @matrix[0].length)
+      living_cell.status.should == "x"
+      living_cell.kill
+      living_cell.status.should == " "
     end
   end
 end
